@@ -1,5 +1,6 @@
 package com.example.prueba019a_ycvg.Vendedor
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -19,11 +20,13 @@ import com.example.prueba019a_ycvg.Vendedor.Nav_Fragments_Vendedor.FragmentMiTie
 import com.example.prueba019a_ycvg.Vendedor.Nav_Fragments_Vendedor.FragmentReseniasV
 import com.example.prueba019a_ycvg.databinding.ActivityMainVendedorBinding
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainVendedorBinding
+    private var firebaseAuth : FirebaseAuth?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,9 @@ class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationIt
 
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolBar)
         setSupportActionBar(toolbar)
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        comprobarSesion()
 
         binding.navigationView.setNavigationItemSelectedListener(this)
 
@@ -51,6 +57,17 @@ class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationIt
         binding.navigationView.setCheckedItem(R.id.op_inicio_v)
 
     }
+
+    private fun comprobarSesion() {
+        if(firebaseAuth!!.currentUser == null){
+            /** Si el usuario no ha iniciado sesión lo dirija al login **/
+            startActivity(Intent(applicationContext, RegistroVendedorActivity::class.java))
+            Toast.makeText(applicationContext, "Vendedor no registrado o no logueado", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(applicationContext, "Vendedor en línea", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment){
         supportFragmentManager
             .beginTransaction()
