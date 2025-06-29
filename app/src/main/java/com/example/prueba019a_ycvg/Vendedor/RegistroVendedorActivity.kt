@@ -1,12 +1,16 @@
 package com.example.prueba019a_ycvg.Vendedor
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.prueba019a_ycvg.Constantes
 import com.example.prueba019a_ycvg.R
 import com.example.prueba019a_ycvg.databinding.ActivityRegistroVendedorBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import java.util.regex.Pattern
 
 class RegistroVendedorActivity : AppCompatActivity() {
@@ -57,7 +61,7 @@ class RegistroVendedorActivity : AppCompatActivity() {
         } else if (password.isEmpty()){
             binding.etPasswordV.error = "Ingrese su password"
             binding.etPasswordV.requestFocus()
-        } else if (password.length >= 6){
+        } else if (password.length <= 6){
             binding.etPasswordV.error = "Necesita 6 o más carácteres"
             binding.etPasswordV.requestFocus()
         } else if (cpassword.isEmpty()){
@@ -72,6 +76,49 @@ class RegistroVendedorActivity : AppCompatActivity() {
     }
 
     private fun registrarVendedor() {
+        progressDialog.setMessage("Creando cuenta")
+        progressDialog.show()
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                insertarInfoBD()
+            }
+            .addOnFailureListener{e->
+                Toast.makeText(this, "Falló el registro debido a ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun insertarInfoBD() {
+        progressDialog.setMessage("Guardando información en la BD: Usuarios")
+
+        val uidBD = firebaseAuth.uid
+        val nombreBD = nombres
+        val emailBD = email
+
+        val tiempoBD = Constantes().obtenerTiempo()
+
+        val datosVendedor = HashMap<String, Any>()
+
+        datosVendedor["uid"] = "$uidBD"
+        datosVendedor["nombres"] = "$nombreBD"
+        datosVendedor["email"] = "$emailBD"
+        datosVendedor["tipoUsuario"] = "vendedor"
+        datosVendedor["tiempo_registro"] = tiempoBD
+
+        //Insertar los datos a la BD de firebase
+        val references = FirebaseDatabase.getInstance().getReference("Usuarios")
+            .setValue(datosVendedor)
+            .addOnSuccessListener {
+                progressDialog.dismiss()
+                startActivity(Intent(this, MainActivityVendedor::class.java))
+                finish()
+            }
+            .addOnFailureListener { e ->
+                progressDialog.dismiss()
+                Toast.makeText(this, "Falló el registro en la BD debido a: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
 
     }
 }
+
+

@@ -4,13 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
-import android.widget.Toolbar
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.prueba019a_ycvg.R
 import com.example.prueba019a_ycvg.Vendedor.Bottom_Nav_Fragments_Vendedor.FragmentMisProductosV
@@ -58,10 +54,18 @@ class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationIt
 
     }
 
+    private fun cerrarSession(){
+        firebaseAuth!!.signOut()
+        startActivity(Intent(applicationContext, LoginVendedorActivity::class.java))
+        finish()
+        Toast.makeText(applicationContext, "Has cerrado sesión de vendedor", Toast.LENGTH_SHORT).show()
+    }
+
+
     private fun comprobarSesion() {
         if(firebaseAuth!!.currentUser == null){
             /** Si el usuario no ha iniciado sesión lo dirija al login **/
-            startActivity(Intent(applicationContext, RegistroVendedorActivity::class.java))
+            startActivity(Intent(applicationContext, LoginVendedorActivity::class.java))
             Toast.makeText(applicationContext, "Vendedor no registrado o no logueado", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(applicationContext, "Vendedor en línea", Toast.LENGTH_SHORT).show()
@@ -87,7 +91,8 @@ class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationIt
                 replaceFragment(FragmentReseniasV())
             }
             R.id.op_cerrar_sesion_v->{
-                Toast.makeText(applicationContext, "Saliste de la aplicación", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Saliste de la aplicación", Toast.LENGTH_SHORT).show()
+                cerrarSession()
             }
             R.id.op_mis_productos_v->{
                 replaceFragment(FragmentMisProductosV())
@@ -100,3 +105,5 @@ class MainActivityVendedor : AppCompatActivity() , NavigationView.OnNavigationIt
         return true
     }
 }
+
+
